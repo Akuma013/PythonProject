@@ -145,12 +145,15 @@ class Game:
                 if max_x < 0:
                     continue
                 if player_x.board[max_x][y-1] == "W":
+                    clear_screen()
                     print("ships must be at least one cell away from each other, cant place")
                     return False
                 elif y <= 7 and player_x.board[max_x][y] == "W":
+                    clear_screen()
                     print("ships must be at least one cell away from each other, cant place")
                     return False
                 elif y-2 >= 0 and player_x.board[max_x][y-2] == "W":
+                    clear_screen()
                     print("ships must be at least one cell away from each other, cant place")
                     return False
 
@@ -372,24 +375,24 @@ class Game:
 
         print(f"\n--- Game starting: {self.player1.name} vs. {self.player2.name}! ---")  # NEW: Welcome message
         print(f"\n--- {self.player1.name}: Place Your Ships ---")
-        self.find_free_space(self.player1,4)
-        print(len(self.player1.free_pos))
-        #self.pl_init(self.player1)
+        # self.find_free_space(self.player1,4)
+        # print(len(self.player1.free_pos))
+        self.pl_init(self.player1)
 
-        #clear_screen()
+        clear_screen()
 
         print(f"\n--- {self.player2.name}: Place Your Ships ---")
-        #self.pl_init(self.player2)
-        #clear_screen()
+        self.pl_init(self.player2)
+        clear_screen()
 
         print("\n--- All ships placed! Starting Battle! ---")
         cont_input = input("Press Enter to begin the battle, or type 'exit' to quit: ").strip()
-        #if cont_input.lower() == 'exit':
-        #    return False
-        #clear_screen()
+        if cont_input.lower() == 'exit':
+            return False
+        clear_screen()
 
-        #self.battle(self.player1, self.player2)
-        #return True
+        self.battle(self.player1, self.player2)
+        return True
 
 
 if __name__ == "__main__":
