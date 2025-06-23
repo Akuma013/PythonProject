@@ -138,20 +138,13 @@ if __name__ == "__main__":
             print("    Starting Battleship Game! Good Luck!")
             print("=" * 40 + "\n")
 
-            # --- NEW: Prompt for player names ---
-            player1_name = input("Enter Player 1's Name (e.g., Alice): ").strip()
-            if not player1_name:  # Provide a default if nothing is entered
-                player1_name = "Player 1"
 
-            player2_name = input("Enter Player 2's Name (e.g., Bob): ").strip()
-            if not player2_name:  # Provide a default if nothing is entered
-                player2_name = "Player 2"
             # --- END NEW ---
 
             # Create a fresh Game instance *here*, right before starting the game
             game_instance = main.Game()
             # Pass the collected names to game_start()
-            game_completed_successfully = game_instance.game_start(player1_name, player2_name)
+            game_completed_successfully = game_instance.game_start()
 
             if game_completed_successfully:
                 print("\n" + "=" * 40)

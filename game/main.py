@@ -51,6 +51,7 @@ class Player:
         ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
         ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
     ]
+        self.free_pos = []
 
 
 class Game:
@@ -270,6 +271,53 @@ class Game:
                                 if y <= 7:
                                     m[draw][y] = "#"
 
+    @staticmethod
+    def check_horizontal(player_x: Player,i, j, length):
+        for row in range(3):
+            for col in range(length + 2):
+                if i - 1 + row < 0 or i - 1 + row > 7 or j - 1 + col < 0 or j - 1 + col > 7:
+                    continue
+                if player_x.board[i - 1 + row][j - 1 + col] != 'O':
+                    return False
+        return True
+
+    @staticmethod
+    def check_vertical(player_x: Player,i, j, length):
+        for col in range(3):
+            for row in range(length + 2):
+                if i - 1 + row < 0 or i - 1 + row > 7 or j - 1 + col < 0 or j - 1 + col > 7:
+                    continue
+                if player_x.board[i - 1 + row][j - 1 + col] != 'O':
+                    return False
+        return True
+
+    def find_free_space(self, player_x: Player, length):
+        player_x.free_pos = []
+        x_y_length_pos = []
+        for i in range(len(player_x.board)):
+            for j in range(len(player_x.board[0])):
+                if j + length - 1 <= 7:
+                    if self.check_horizontal(player_x, i, j, length):
+                        x_y_length_pos.append(i)
+                        x_y_length_pos.append(j)
+                        x_y_length_pos.append(length)
+                        x_y_length_pos.append("h")
+                        player_x.free_pos.append(x_y_length_pos)
+                x_y_length_pos = []
+                if i + length - 1 <= 7:
+                    if self.check_vertical(player_x, i, j, length):
+                        x_y_length_pos.append(i)
+                        x_y_length_pos.append(j)
+                        x_y_length_pos.append(length)
+                        x_y_length_pos.append("v")
+                        player_x.free_pos.append(x_y_length_pos)
+                x_y_length_pos = []
+
+
+    #   def check_no_place(self, player_x: Player):
+
+        # if player_x.total[3] and self.check_free_place(player_x, ):
+
     def playing_order(self, player_x, player_y, m1, m2, p):
         if player_x.score == 0:
             print(f"\n***** {player_y.name} WON THE GAME! *****\n")
@@ -306,7 +354,16 @@ class Game:
 
         return self.playing_order(player_x, player_y, m1, m2, True)
 
-    def game_start(self, player1_name, player2_name):
+    def game_start(self):
+
+        player1_name = input("Enter Player 1's Name (e.g., Alice): ").strip()
+        if not player1_name:  # Provide a default if nothing is entered
+            player1_name = "Player 1"
+
+        player2_name = input("Enter Player 2's Name (e.g., Bob): ").strip()
+        if not player2_name:  # Provide a default if nothing is entered
+            player2_name = "Player 2"
+
         self.player1 = Player(player1_name)
         self.player2 = Player(player2_name)
 
@@ -315,24 +372,26 @@ class Game:
 
         print(f"\n--- Game starting: {self.player1.name} vs. {self.player2.name}! ---")  # NEW: Welcome message
         print(f"\n--- {self.player1.name}: Place Your Ships ---")
-        self.pl_init(self.player1)
+        self.find_free_space(self.player1,4)
+        print(len(self.player1.free_pos))
+        #self.pl_init(self.player1)
 
-        clear_screen()
+        #clear_screen()
 
         print(f"\n--- {self.player2.name}: Place Your Ships ---")
-        self.pl_init(self.player2)
-        clear_screen()
+        #self.pl_init(self.player2)
+        #clear_screen()
 
         print("\n--- All ships placed! Starting Battle! ---")
         cont_input = input("Press Enter to begin the battle, or type 'exit' to quit: ").strip()
-        if cont_input.lower() == 'exit':
-            return False
-        clear_screen()
+        #if cont_input.lower() == 'exit':
+        #    return False
+        #clear_screen()
 
-        self.battle(self.player1, self.player2)
-        return True
+        #self.battle(self.player1, self.player2)
+        #return True
 
 
 if __name__ == "__main__":
     game = Game()
-    game.game_start("StandalonePlayer1", "StandalonePlayer2")
+    game.game_start()
