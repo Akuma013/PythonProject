@@ -60,8 +60,8 @@ class Game:
         self.player2 = None
     # when self. is not used we make method static by @staticmethod
     @staticmethod
-    def print_game(m1, m2):
-        print("player1\t\t\t\tplayer2")
+    def print_game(player_x: Player, player_y: Player, m1, m2):
+        print(f"{player_x.name}\t\t\t{player_y.name}")
         print(" ", *row, "   ", *row)
         for i in range(len(column)):
             print(column[i], *m1[i], " ", column[i], *m2[i])
@@ -102,76 +102,49 @@ class Game:
             return self.get_pos()
 
     def place_ship(self, player_x: Player, length):
+        if not player_x.free_pos:
+            self.delete_ship(player_x)
+            self.find_free_space(player_x, length)
+            clear_screen()
+            print("Now try to place ship you wanted!")
+            print(" If the space is free then you will, if not, you will have to delete one more ship")
+            self.show_available_ships(player_x)
+            self.print_mat(player_x)
+            return self.place_ship(player_x, length)
         data = []
         x, y = self.get_coord()
-        pos = self.get_pos()
+        placement = self.get_pos()
+        for free_pos in player_x.free_pos:
+            print(x-1, y-1, length, placement)
+            if x-1 == free_pos[0] and y-1 == free_pos[1] and length == free_pos[2] and placement == free_pos[3]:
+                if placement == "v":
+                    for i in range(length):
+                        player_x.board[x - 1 + i][y - 1] = "W"
+                    del player_x.total[length - 1][0]
+                elif placement == "h":
+                    for i in range(length):
+                        player_x.board[x - 1][y - 1 + i] = "W"
+                    del player_x.total[length - 1][0]
+                data.append(x - 1)
+                data.append(y - 1)
+                data.append(length)
+                data.append(placement)
+                player_x.pos.append(data)
+                return True
 
-        if pos == "h":
-            if (8-y+1) < length:
-                print("cant place, not enough space")
-                return False
+            print("Error! Cant place there! But you have other free positions to choose! ")
+            print(f"e.g. position-> '{chr(ord('a') + player_x.free_pos[0][1])},{player_x.free_pos[0][0]+1}'"
+                  f" length <= {player_x.free_pos[0][2]} placement= {player_x.free_pos[0][3]}")
+                # del player_x.total[0][0]
 
-            for i in range(length + 2):
-                max_y = y-2+i
 
-                if max_y >= 8:
-                    break
-                if max_y < 0:
-                    continue
-                if player_x.board[x-1][max_y] == "W":
-                    print("ships must be at least one cell away from each other, cant place")
-                    return False
-                elif x <= 7 and player_x.board[x][max_y] == "W":
-                    print("ships must be at least one cell away from each other, cant place")
-                    return False
-                elif x-2 >= 0 and player_x.board[x-2][max_y] == "W":
-                    print("ships must be at least one cell away from each other, cant place")
-                    return False
-            for i in range(length):
-                player_x.board[x-1][y-1+i] = "W"
-            del player_x.total[length-1][0]
-            # del player_x.total[0][0]
 
-        elif pos == "v":
-            if (8-x+1) < length:
-                print("cant place, not enough space")
-                return False
+        return False
 
-            for i in range(length + 2):
-                max_x = x-2+i
-
-                if max_x >= 8:
-                    break
-                if max_x < 0:
-                    continue
-                if player_x.board[max_x][y-1] == "W":
-                    clear_screen()
-                    print("ships must be at least one cell away from each other, cant place")
-                    return False
-                elif y <= 7 and player_x.board[max_x][y] == "W":
-                    clear_screen()
-                    print("ships must be at least one cell away from each other, cant place")
-                    return False
-                elif y-2 >= 0 and player_x.board[max_x][y-2] == "W":
-                    clear_screen()
-                    print("ships must be at least one cell away from each other, cant place")
-                    return False
-
-            for i in range(length):
-                player_x.board[x-1+i][y-1] = "W"
-            del player_x.total[length-1][0]
-            # del player_x.total[0][0]
-
-        data.append(x-1)
-        data.append(y-1)
-        data.append(length)
-        data.append(pos)
-        player_x.pos.append(data)
-        # print(player_x.pos)
-        return True
 
     def pl_init(self, player_x: Player):
-        print(f"\n--- {player_x.name}'s turn to place ships! --- (Type 'exit' to quit at any prompt)")
+        #  --- (Type 'exit' to quit at any prompt)
+        print(f"\n--- {player_x.name}'s turn to place ships!")
         while any(inner for inner in player_x.total):
             print("Place your available ships (see below):")
             self.show_available_ships(player_x)
@@ -181,32 +154,48 @@ class Game:
                 case "ssr":
                     # if player_x.total[0]:
                     if player_x.total[3]:
+                        self.find_free_space(player_x, len(player_x.ssr.arr[0]))
                         if self.place_ship(player_x, len(player_x.ssr.arr[0])):
                             clear_screen()
+                        else:
+                            clear_screen()
+                            print("Error! Cant place ship there! Not enough space!")
                     else:
                         clear_screen()
                         print("No more 'ssr' rank ships available")
 
                 case "sr":
                     if player_x.total[2]:
+                        self.find_free_space(player_x, len(player_x.sr.arr[0]))
                         if self.place_ship(player_x, len(player_x.sr.arr[0])):
                             clear_screen()
+                        else:
+                            clear_screen()
+                            print("Error! Cant place ship there! Not enough space!")
                     else:
                         clear_screen()
                         print("No more 'sr' rank ships available")
 
                 case "s":
                     if player_x.total[1]:
+                        self.find_free_space(player_x, len(player_x.s.arr[0]))
                         if self.place_ship(player_x, len(player_x.s.arr[0])):
                             clear_screen()
+                        else:
+                            clear_screen()
+                            print("Error! Cant place ship there! Not enough space!")
                     else:
                         clear_screen()
                         print("No more 's' rank ships available")
 
                 case "a":
                     if player_x.total[0]:
+                        self.find_free_space(player_x, len(player_x.a.arr[0]))
                         if self.place_ship(player_x, len(player_x.a.arr[0])):
                             clear_screen()
+                        else:
+                            clear_screen()
+                            print("Error! Cant place ship there! Not enough space!")
                     else:
                         clear_screen()
                         print("No more 'a' rank ships available")
@@ -227,7 +216,7 @@ class Game:
     def check_destruction(player_x, x, y, m, i):
         if player_x.pos[i][3] == "h":
             for j in range(player_x.pos[i][2]):
-                print(f"j {j} x-1 {x - 1} y-1+j {player_x.pos[i][1] + j}")
+                # print(f"j {j} x-1 {x - 1} y-1+j {player_x.pos[i][1] + j}")
                 if m[x - 1][player_x.pos[i][1] + j] != "X":
                     return False
             return True
@@ -275,7 +264,7 @@ class Game:
                                     m[draw][y] = "#"
 
     @staticmethod
-    def check_horizontal(player_x: Player,i, j, length):
+    def check_horizontal(player_x: Player, i, j, length):
         for row in range(3):
             for col in range(length + 2):
                 if i - 1 + row < 0 or i - 1 + row > 7 or j - 1 + col < 0 or j - 1 + col > 7:
@@ -285,7 +274,7 @@ class Game:
         return True
 
     @staticmethod
-    def check_vertical(player_x: Player,i, j, length):
+    def check_vertical(player_x: Player, i, j, length):
         for col in range(3):
             for row in range(length + 2):
                 if i - 1 + row < 0 or i - 1 + row > 7 or j - 1 + col < 0 or j - 1 + col > 7:
@@ -316,10 +305,32 @@ class Game:
                         player_x.free_pos.append(x_y_length_pos)
                 x_y_length_pos = []
 
+    def delete_ship(self, player_x: Player):
+        print("There is no place on the board left to place your ship! choose another ship to delete!")
+        x, y = self.get_coord()
+        for i in range(len(player_x.pos)):
+            placed_ship = player_x.pos[i]
+            if placed_ship[3] == "h":
+                if placed_ship[0] == x - 1 and placed_ship[1] <= y - 1 <= placed_ship[1] + placed_ship[2]-1:
+                    # print(placed_ship)
+                    for j in range(placed_ship[2]):
+                        player_x.board[placed_ship[0]][placed_ship[1] + j] = "O"
+                    player_x.total[placed_ship[2]-1].append(['W']*placed_ship[2])
+                    del player_x.pos[i]
+                    return True
+            elif placed_ship[3] == "v":
+                if placed_ship[0] <= x - 1 <= placed_ship[0] + placed_ship[2] - 1 and placed_ship[1] == y - 1:
+                    # print(placed_ship)
+                    for j in range(placed_ship[2]):
+                        player_x.board[placed_ship[0] + j][placed_ship[1]] = "O"
+                    player_x.total[placed_ship[2]-1].append(['W']*placed_ship[2])
+                    del player_x.pos[i]
+                    return True
+        print("Invalid ship coordinates to delete, try again")
+        return self.delete_ship(player_x)
 
-    #   def check_no_place(self, player_x: Player):
 
-        # if player_x.total[3] and self.check_free_place(player_x, ):
+
 
     def playing_order(self, player_x, player_y, m1, m2, p):
         if player_x.score == 0:
@@ -330,9 +341,9 @@ class Game:
             return
 
         if p:
-            self.print_game(m1, m2)
+            self.print_game(player_x, player_y, m1, m2)
         else:
-            self.print_game(m2, m1)
+            self.print_game(player_x, player_y, m2, m1)
 
         print(f"{player_x.name} enter position to attack: ")
         x, y = self.get_coord()
@@ -397,3 +408,128 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.game_start()
+
+
+
+# def place_ship(self, player_x: Player, length):
+    #     data = []
+    #     x, y = self.get_coord()
+    #     pos = self.get_pos()
+    #
+    #     if pos == "h":
+    #         if (8-y+1) < length:
+    #             print("cant place, not enough space")
+    #             return False
+    #
+    #         for i in range(length + 2):
+    #             max_y = y-2+i
+    #
+    #             if max_y >= 8:
+    #                 break
+    #             if max_y < 0:
+    #                 continue
+    #             if player_x.board[x-1][max_y] == "W":
+    #                 print("ships must be at least one cell away from each other, cant place")
+    #                 return False
+    #             elif x <= 7 and player_x.board[x][max_y] == "W":
+    #                 print("ships must be at least one cell away from each other, cant place")
+    #                 return False
+    #             elif x-2 >= 0 and player_x.board[x-2][max_y] == "W":
+    #                 print("ships must be at least one cell away from each other, cant place")
+    #                 return False
+    #         for i in range(length):
+    #             player_x.board[x-1][y-1+i] = "W"
+    #         del player_x.total[length-1][0]
+    #         # del player_x.total[0][0]
+    #
+    #     elif pos == "v":
+    #         if (8-x+1) < length:
+    #             print("cant place, not enough space")
+    #             return False
+    #
+    #         for i in range(length + 2):
+    #             max_x = x-2+i
+    #
+    #             if max_x >= 8:
+    #                 break
+    #             if max_x < 0:
+    #                 continue
+    #             if player_x.board[max_x][y-1] == "W":
+    #                 clear_screen()
+    #                 print("ships must be at least one cell away from each other, cant place")
+    #                 return False
+    #             elif y <= 7 and player_x.board[max_x][y] == "W":
+    #                 clear_screen()
+    #                 print("ships must be at least one cell away from each other, cant place")
+    #                 return False
+    #             elif y-2 >= 0 and player_x.board[max_x][y-2] == "W":
+    #                 clear_screen()
+    #                 print("ships must be at least one cell away from each other, cant place")
+    #                 return False
+    #
+    #         for i in range(length):
+    #             player_x.board[x-1+i][y-1] = "W"
+    #         del player_x.total[length-1][0]
+    #         # del player_x.total[0][0]
+    #
+    #     data.append(x-1)
+    #     data.append(y-1)
+    #     data.append(length)
+    #     data.append(pos)
+    #     player_x.pos.append(data)
+    #     # print(player_x.pos)
+    #     return True
+
+
+    # def pl_init(self, player_x: Player):
+    #     #  --- (Type 'exit' to quit at any prompt)
+    #     print(f"\n--- {player_x.name}'s turn to place ships!")
+    #     while any(inner for inner in player_x.total):
+    #         print("Place your available ships (see below):")
+    #         self.show_available_ships(player_x)
+    #         self.print_mat(player_x)
+    #         ship_choice = input("Choose ship to place (ssr, sr, s, a): ").lower().strip()
+    #         match ship_choice:
+    #             case "ssr":
+    #                 # if player_x.total[0]:
+    #                 if player_x.total[3]:
+    #                     if self.place_ship(player_x, len(player_x.ssr.arr[0])):
+    #                         clear_screen()
+    #                 else:
+    #                     clear_screen()
+    #                     print("No more 'ssr' rank ships available")
+    #
+    #             case "sr":
+    #                 if player_x.total[2]:
+    #                     if self.place_ship(player_x, len(player_x.sr.arr[0])):
+    #                         clear_screen()
+    #                 else:
+    #                     clear_screen()
+    #                     print("No more 'sr' rank ships available")
+    #
+    #             case "s":
+    #                 if player_x.total[1]:
+    #                     if self.place_ship(player_x, len(player_x.s.arr[0])):
+    #                         clear_screen()
+    #                 else:
+    #                     clear_screen()
+    #                     print("No more 's' rank ships available")
+    #
+    #             case "a":
+    #                 if player_x.total[0]:
+    #                     if self.place_ship(player_x, len(player_x.a.arr[0])):
+    #                         clear_screen()
+    #                 else:
+    #                     clear_screen()
+    #                     print("No more 'a' rank ships available")
+    #
+    #             case "exit":
+    #                 return False
+    #             case _:
+    #                 clear_screen()
+    #                 print("Invalid ship!! Enter valid ship rank 'a', 's', 'sr' or 'ssr'")
+    #                 continue
+    #
+    #     self.print_mat(player_x)
+    #     aaa = input("this is your final matrix, press enter to continue: ")
+    #     return True

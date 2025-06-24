@@ -14,14 +14,12 @@ from prompt_toolkit.styles import Style
 
 # ─── STYLES ────────────────────────────────────────────────────────────
 style_main = Style.from_dict({
-    # Only for the main menu
     "frame.border": "cyan",
     "label":        "bold",
 })
 style_settings = Style.from_dict({
-    # Only for settings dialogs
-    "":                   "bg:cyan",        # entire background
-    "shadow":             "bg:cyan",        # any shadows
+    "":                   "bg:cyan",
+    "shadow":             "bg:cyan",
     "dialog.body":        "bg:cyan",
     "dialog.body text":   "bg:cyan",
     "dialog.frame.label": "bg:cyan",
@@ -32,11 +30,11 @@ style_settings = Style.from_dict({
 pygame.mixer.init()
 
 # ─── SHARED STATE ─────────────────────────────────────────────────────
-game_instance    = main.Game()
-menu_items       = ["New Game", "Settings", "Quit"]
-selected_index   = [0]
+game_instance = main.Game()
+menu_items = ["New Game", "Settings", "Quit"]
+selected_index = [0]
 selected_players = ["1"]
-music_playing    = [False]
+music_playing = [False]
 
 # ─── MAIN MENU KEYBINDINGS ─────────────────────────────────────────────
 kb = KeyBindings()
@@ -76,14 +74,14 @@ logo = Window(
     height=D.exact(8),
     style="bold cyan"
 )
-menu_frame  = Frame(HSplit([logo, *labels], padding=1), title="Battleship Menu")
+menu_frame = Frame(HSplit([logo, *labels], padding=1), title="Battleship Menu")
 menu_screen = HSplit([menu_frame])
-layout      = Layout(container=menu_screen)
+layout = Layout(container=menu_screen)
 
 app = Application(
     layout=layout,
     key_bindings=kb,
-    style=style_main,     # <- only main menu gets style_main
+    style=style_main,
     full_screen=True,
 )
 
@@ -132,7 +130,7 @@ async def do_settings():
 
     app_players = Application(
         layout=Layout(root1),
-        style=style_settings,   # <- only settings use cyan style
+        style=style_settings,
         full_screen=True,
     )
 
@@ -164,7 +162,7 @@ async def do_settings():
 
     app_music = Application(
         layout=Layout(root2),
-        style=style_settings,   # <- settings style again
+        style=style_settings,
         full_screen=True,
     )
 
@@ -184,6 +182,7 @@ if __name__ == "__main__":
 
         if action == "start_game":
             main.clear_screen()
+            main.change_color()
             print("\n" + "=" * 40)
             print("    Starting Battleship Game! Good Luck!")
             print("=" * 40 + "\n")
@@ -198,7 +197,7 @@ if __name__ == "__main__":
                 continue
 
         elif action == "settings":
-            asyncio.run(do_settings())  # Settings dialogs with cyan BG
+            asyncio.run(do_settings())
             draw_menu()
             continue
 
