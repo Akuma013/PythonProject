@@ -1,5 +1,6 @@
 import math
-
+# for structure was taken the code from https://www.geeksforgeeks.org/chain-of-responsibility-python-design-patterns/
+# but code is fully changed with different example (shapes area/volume handler)
 class AbstractHandler(object):
 
     """Parent class of all concrete handlers"""

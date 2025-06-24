@@ -95,7 +95,7 @@ def draw_menu():
 async def do_settings():
     # Helpers for music
     def play_music():
-        pygame.mixer.music.load("") # Give path to music file (e. g. C:/Users/user/........../aaa.mp3)
+        pygame.mixer.music.load("C:/Users/user/Music/AAA.mp3") # Give path to music file (e. g. C:/Users/user/........../aaa.mp3)
         pygame.mixer.music.play(-1)
         music_playing[0] = True
 

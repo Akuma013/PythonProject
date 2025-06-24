@@ -49,4 +49,3 @@ if __name__ == "__main__":
 
     vehicle = factory.manifacture()
     vehicle.print_specs()
-    
