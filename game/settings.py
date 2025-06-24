@@ -95,7 +95,7 @@ def draw_menu():
 async def do_settings():
     # Helpers for music
     def play_music():
-        pygame.mixer.music.load("") # Give path to music file (e. g. C:/Users/user/........../aaa.mp3)
+        pygame.mixer.music.load("C:/Users/user/Music/forgiveness.mp3") # Give path to music file (e. g. C:/Users/user/........../aaa.mp3)
         pygame.mixer.music.play(-1)
         music_playing[0] = True
 
@@ -106,10 +106,10 @@ async def do_settings():
     # --- Dialog 1: Players ---
     player_radio = RadioList(
         values=[
+            ("1","1 Player"),
             ("2","2 Players"),
             ("3","3 Players"),
             ("4","4 Players"),
-            ("5", "5 Players"),
         ],
         default=selected_players[0]
     )
@@ -187,7 +187,6 @@ if __name__ == "__main__":
             print("\n" + "=" * 40)
             print("    Starting Battleship Game! Good Luck!")
             print("=" * 40 + "\n")
-
             done = game_instance.game_start()
             if done:
                 print("Game over! Goodbye.")

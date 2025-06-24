@@ -358,7 +358,6 @@ class Game:
         return self.playing_order(player_x, player_y, m1, m2, True)
 
     def game_start(self):
-
         player1_name = input("Enter Player 1's Name (e.g., Alice): ").strip()
         if not player1_name:  # Provide a default if nothing is entered
             player1_name = "Player 1"
